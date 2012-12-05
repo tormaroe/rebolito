@@ -2,12 +2,19 @@
 $assertions = []
 $errors = []
 
+class TestInfo
+  attr_reader :ok, :name
+  def initialize name, ok
+    @ok = ok ; @name = name
+  end
+end
+
 def example txt, &block
   if block.call
-    $assertions << true
+    $assertions << TestInfo.new(txt, true)
     print '.'
   else
-    $assertions << false
+    $assertions << TestInfo.new(txt, false)
     print 'f'
   end
 end
@@ -23,10 +30,11 @@ end
 
 def the_end!
   puts; puts
-  if $assertions.all? { |a| a }
+  if $assertions.all? { |a| a.ok }
     puts " #{$assertions.size} assertions, all ok!"
   else
-    puts " *** #{$assertions.size} assertions, #{$assertions.count { |a| not a }} FAILED!"
+    $assertions.select{|a| not a.ok }.each {|a| puts "FAILED: #{a.name}" }
+    puts " *** #{$assertions.size} assertions, #{$assertions.count { |a| not a.ok }} FAILED!"
   end
   if $errors.size > 0
     puts " *** #{$errors.size} EXCEPTIONS!"
@@ -34,4 +42,4 @@ def the_end!
   end
 end
 
-print "Executing program specification:"
+puts "Executing program specification:"
