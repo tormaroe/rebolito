@@ -43,6 +43,9 @@ module Rebolito
       @closed = false
       super []
     end
+    def to_s
+      "(" + @value.join(", ") + ")-" + (unless @closed then "open" else "closed" end)
+    end
   end
 
   class Function < Type
@@ -84,7 +87,7 @@ module Rebolito
             if factory == :block_end
               @@tokens[-1].closed = true
             elsif @@tokens[-1].class == Block and not @@tokens[-1].closed
-              @@tokens[-1].value << factory.call(match[0])
+              @@tokens[-1].value << factory.call(match[0]) ## TODO: PROBLEM HERE WITH NESTED BLOCKS
             else
               @@tokens << factory.call(match[0])
             end

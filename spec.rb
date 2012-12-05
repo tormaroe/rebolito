@@ -79,7 +79,8 @@ explanation %(
   end
 
   example %( A block can be empty ) do
-    Rebolito::Tokenizer.parse(%([]))[0].class == Rebolito::Block
+    Rebolito::Tokenizer.parse(%([]))[0].class == Rebolito::Block and
+    Rebolito::Tokenizer.parse(%([]))[0].closed 
   end
   example %( A block can span multiple lines ) do
     Rebolito::Tokenizer.parse(%(
@@ -88,6 +89,20 @@ explanation %(
       ]
     ))[0].class == Rebolito::Block
   end
+  
+  #example %( Nested blocks.. ) do
+  #  tokens = Rebolito::Tokenizer.parse(%(
+  #    [
+  #      1 [
+  #          2
+  #        ]
+  #    ]
+  #  ))
+  #  p tokens
+  #  tokens.size == 1 and 
+  #  tokens[0].class == Rebolito::Block and
+  #  tokens[0].value.size == 2
+  #end
 end
 
 
