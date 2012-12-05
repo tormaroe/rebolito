@@ -45,6 +45,11 @@ module Rebolito
     end
   end
 
+  class Function < Type
+    attr_accessor :parameters, :body
+    def initialize; end
+  end
+
   ## ---------------------------------------------------- THE TOKENIZER
   module Tokenizer
     def self.parse source
@@ -54,7 +59,13 @@ module Rebolito
         /^\]/ => :block_end,
         /^(?:\-){0,1}\d+(?:\.\d+){0,1}/ => Proc.new {|s| Number.new s },
         /^[A-Za-z]+[A-Za-z0-9\-_\?\<\>\!\@\#\&\/\=\+\.]*\:/ => Proc.new {|s| Assignment.new s },
-        /^[A-Za-z]+[A-Za-z0-9\-_\?\<\>\!\@\#\&\/\=\+\.]*/ => Proc.new {|s| Symbol.new s },
+        /^[A-Za-z]+[A-Za-z0-9\-_\?\<\>\!\@\#\&\/\=\+\.]*/ => Proc.new {|s| 
+          if s == 'fun'
+            Function.new
+          else
+            Symbol.new s 
+          end
+        },
         /^\s+/ => :whitespace
       }
       @@tokens = []
@@ -106,24 +117,49 @@ module Rebolito
 
   class Interpreter
     attr_accessor :global
+    
     def initialize
       @global = Scope.new nil
     end
-    def eval_string source # UNFORTUNATE NAME!!!
-      self.eval(Tokenizer.parse(source))
-    end
-    def eval ast
-      #return @global.add_binding "foo", Number.new("10")
 
-      while ast.size > 0
-        if ast[0].class == Rebolito::Assignment
-          eval_assignment ast
-        end
+    def eval_string source # UNFORTUNATE NAME!!!
+      ast = Tokenizer.parse(source)
+      self.eval(ast) while ast.size > 0
+    end
+    
+    def eval ast
+      if ast[0].class == Rebolito::Assignment
+        eval_assignment ast
+      elsif ast[0].class == Rebolito::Function
+        eval_function ast
+      elsif evaluates_to_self? ast[0]
+        ast.shift
+      else
+        raise "INTERPRETER DOESN'T KNOW WHAT TO DO WITH: #{ast[0]}"
+      end
+    end
+
+    def evaluates_to_self? token
+      [Rebolito::Block, Rebolito::Number, Rebolito::String].any? do |klass|
+        klass == token.class
       end
     end
 
     def eval_assignment ast
-      @global.add_binding ast.shift.value, ast.shift
+      assignment_token = ast.shift
+      value_to_bind = self.eval(ast)
+      @global.add_binding assignment_token.value, value_to_bind
+    end
+
+    def eval_function ast
+      unless ast.size >= 3 and ast[1].class == Block and ast[2].class == Block
+        raise "Function needs to be followed by two blocks!"
+      end
+
+      fun = ast.shift
+      fun.parameters  = ast.shift # don't need to eval block
+      fun.body        = ast.shift # don't need to eval block
+      fun
     end
   end
 end
