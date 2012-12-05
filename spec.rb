@@ -126,7 +126,8 @@ explanation %(
     rebolito.global.resolve("foo").class == Rebolito::Function 
   end
   example %( Function has a parameters block and body block ) do 
-    rebolito.global.resolve("foo").parameters.class == Rebolito::Block 
+    rebolito.global.resolve("foo").parameters.class == Rebolito::Block and 
+    rebolito.global.resolve("foo").body.class == Rebolito::Block 
   end
 end
 

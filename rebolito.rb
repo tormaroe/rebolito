@@ -122,12 +122,12 @@ module Rebolito
       @global = Scope.new nil
     end
 
-    def eval_string source # UNFORTUNATE NAME!!!
+    def eval_string source
       ast = Tokenizer.parse(source)
-      self.eval(ast) while ast.size > 0
+      eval_expr(ast) while ast.size > 0
     end
     
-    def eval ast
+    def eval_expr ast
       if ast[0].class == Rebolito::Assignment
         eval_assignment ast
       elsif ast[0].class == Rebolito::Function
@@ -147,7 +147,7 @@ module Rebolito
 
     def eval_assignment ast
       assignment_token = ast.shift
-      value_to_bind = self.eval(ast)
+      value_to_bind = eval_expr ast
       @global.add_binding assignment_token.value, value_to_bind
     end
 
