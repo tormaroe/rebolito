@@ -116,6 +116,40 @@ module Rebolito
     end
   end
 
+  ## --------------------------------------------------- TYPE EVALUATION
+  class ::Array
+    def evaluate scope
+      self[0].evaluate self, scope
+    end
+  end
+
+  class Type
+    def evaluate ast, scope
+      ast.shift
+    end
+  end
+
+  class Assignment
+    def evaluate ast, scope
+      assignment_token = ast.shift
+      value_to_bind = ast.evaluate scope
+      scope.add_binding assignment_token.value, value_to_bind
+    end
+  end
+
+  class Function
+    def evaluate ast, scope
+      unless ast.size >= 3 and ast[1].class == Block and ast[2].class == Block
+        raise "Function needs to be followed by two blocks!"
+      end
+
+      fun = ast.shift
+      fun.parameters  = ast.evaluate scope
+      fun.body        = ast.evaluate scope
+      fun
+    end
+  end
+
   ## --------------------------------------------------- INTERPRETER
 
   class Interpreter
@@ -127,42 +161,7 @@ module Rebolito
 
     def eval_string source
       ast = Tokenizer.parse(source)
-      eval_expr(ast) while ast.size > 0
-    end
-    
-    def eval_expr ast
-      if ast[0].class == Rebolito::Assignment
-        eval_assignment ast
-      elsif ast[0].class == Rebolito::Function
-        eval_function ast
-      elsif evaluates_to_self? ast[0]
-        ast.shift
-      else
-        raise "INTERPRETER DOESN'T KNOW WHAT TO DO WITH: #{ast[0]}"
-      end
-    end
-
-    def evaluates_to_self? token
-      [Rebolito::Block, Rebolito::Number, Rebolito::String].any? do |klass|
-        klass == token.class
-      end
-    end
-
-    def eval_assignment ast
-      assignment_token = ast.shift
-      value_to_bind = eval_expr ast
-      @global.add_binding assignment_token.value, value_to_bind
-    end
-
-    def eval_function ast
-      unless ast.size >= 3 and ast[1].class == Block and ast[2].class == Block
-        raise "Function needs to be followed by two blocks!"
-      end
-
-      fun = ast.shift
-      fun.parameters  = ast.shift # don't need to eval block
-      fun.body        = ast.shift # don't need to eval block
-      fun
+      ast.evaluate(@global) while ast.size > 0
     end
   end
 end
