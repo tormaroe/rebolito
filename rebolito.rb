@@ -1,4 +1,6 @@
 
+$__rebolito_version = 0.1
+
 module Rebolito
 
   ## --------------------------------------------- BASE CLASS OF ALL TYPES
@@ -51,10 +53,6 @@ module Rebolito
   class Function < Type
     attr_accessor :parameters, :body
     def initialize; end
-
-    def arity
-      @parameters.size
-    end
   end
 
   ## ---------------------------------------------------- THE TOKENIZER
@@ -65,8 +63,8 @@ module Rebolito
         /^\[/ => Proc.new {|s| Block.new },
         /^\]/ => :block_end,
         /^(?:\-){0,1}\d+(?:\.\d+){0,1}/ => Proc.new {|s| Number.new s },
-        /^[A-Za-z]+[A-Za-z0-9\-_\?\<\>\!\@\#\&\/\=\+\.]*\:/ => Proc.new {|s| Assignment.new s },
-        /^[A-Za-z]+[A-Za-z0-9\-_\?\<\>\!\@\#\&\/\=\+\.]*/ => Proc.new {|s| 
+        /^[A-Za-z0-9\-_\?\<\>\!\@\#\&\/\=\+\*\.\(\)]+\:/ => Proc.new {|s| Assignment.new s },
+        /^[A-Za-z0-9\-_\?\<\>\!\@\#\&\/\=\+\*\.\(\)]+/ => Proc.new {|s| 
           if s == 'fun'
             Function.new
           else
@@ -107,6 +105,7 @@ module Rebolito
   class Scope
     def initialize parent_scope
       @symbols = {}
+      @parent = parent_scope
     end
     def add_binding symbol, value
       if symbol.class == ::String
@@ -116,7 +115,9 @@ module Rebolito
       end
     end
     def resolve symbol
-      @symbols[symbol]
+      return @symbols[symbol] if @symbols.include? symbol
+      return @parent.resolve(symbol) if @parent
+      raise "Symbol #{symbol} is unbound"
     end
   end
 
@@ -124,6 +125,14 @@ module Rebolito
   class ::Array
     def evaluate scope
       self[0].evaluate self, scope
+    end
+    
+    def evaluate_n n, scope
+      result = []
+      n.times do 
+        result << self[0].evaluate(self, scope)
+      end
+      result
     end
   end
 
@@ -185,18 +194,104 @@ module Rebolito
 
   class Interpreter
     attr_accessor :global
-    
+
     def initialize
       @global = Scope.new nil
+
+      f = Function.new ; def f.invoke(ast, scope)
+        abort "bye bye!"
+      end ; @global.add_binding 'quit', f
+
+      f = Function.new ; def f.invoke(ast, scope)
+        args = ast.evaluate_n 2, scope
+        Number.new (args.shift.value + args.shift.value).to_s
+      end ; @global.add_binding '+', f
+
+      f = Function.new ; def f.invoke(ast, scope)
+        args = ast.evaluate_n 2, scope
+        Number.new (args.shift.value - args.shift.value).to_s
+      end ; @global.add_binding '-', f
+
+      f = Function.new ; def f.invoke(ast, scope)
+        args = ast.evaluate_n 2, scope
+        Number.new (args.shift.value * args.shift.value).to_s
+      end ; @global.add_binding '*', f
+
+      f = Function.new ; def f.invoke(ast, scope)
+        args = ast.evaluate_n 2, scope
+        Number.new (args.shift.value / args.shift.value).to_s
+      end ; @global.add_binding '/', f
+
+      f = Function.new ; def f.invoke(ast, scope)
+        arg = ast.evaluate scope
+        if arg.class == Block
+          puts arg.value.map{|v| v.value }.join("")
+        else
+          puts arg.value
+        end
+      end ; @global.add_binding 'println', f
     end
 
     def eval_string source
       ast = Tokenizer.parse(source)
-      ast.evaluate(@global) while ast.size > 0
+      if ast.last.class == Block and not ast.last.closed
+        raise SourceNotCompleteException.new
+      end
+      result = ast.evaluate(@global) while ast.size > 0
+      return "NIL" unless result
+      return result.value
     end
+  end
+
+  class SourceNotCompleteException < Exception
   end
 end
 
+
 ## ----------------------------------------------------------- MAIN
 
+if __FILE__ == $PROGRAM_NAME
 
+  if ARGV[0] == "-e"
+    ARGV.shift
+    source = ARGV.join(" ")
+  else
+    maybe_file = ARGV[-1]
+    if maybe_file and File.exist? maybe_file
+      source = File.read(maybe_file)
+    end
+  end
+
+  rebolito = Rebolito::Interpreter.new
+    
+  if source
+    puts "==> #{ rebolito.eval_string(source) }"
+  else
+    ## REPL mode
+    puts "REBOLito version #{ $__rebolito_version }"
+
+    input = nil
+    while true
+      if input
+        print '.. '
+      else
+        print '>> '
+      end
+
+      input = "#{input} #{gets.chomp}"
+      
+      begin
+        puts "==> #{ rebolito.eval_string(input) }"
+        input = nil
+      rescue Rebolito::SourceNotCompleteException
+        # nothing  
+      rescue Exception => e
+        #raise
+        raise if e.class == SystemExit
+        input = nil
+        puts "** #{ e }"
+      end
+    end
+  end
+
+end

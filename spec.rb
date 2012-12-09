@@ -159,7 +159,6 @@ explanation %(
                         )
 
   example %( Value for symbol foo should be a Number ) do 
-    p rebolito.global.resolve("foo")
     rebolito.global.resolve("foo").class == Rebolito::Number 
   end
   example %( Value for symbol foo should be the number 4 ) do 
@@ -167,9 +166,46 @@ explanation %(
   end
 end
 
+explanation %(
+  Math functions from core library
+) do
+  rebolito = Rebolito::Interpreter.new
+  rebolito.eval_string %( 
+                         x: + 1 2    "<-- a coment -->"     y: + 1 -5
 
+                         p: - - - 10 8 3 -2 [ ... doing several (yes this is a comment) ]
 
-## TODO: Function invocation
+                         z: * 3 5                           w: / 12 3
+                        )
+  
+  example %( Add numbers ) do 
+    rebolito.global.resolve("x").value == 3 and 
+    rebolito.global.resolve("y").value == -4 
+  end
+  example %( Subtract ) do 
+    rebolito.global.resolve("p").value == 1
+  end
+  example %( Multiply ) do 
+    rebolito.global.resolve("z").value == 15 
+  end
+  example %( Devide ) do 
+    rebolito.global.resolve("w").value == 4 
+  end
+end
+
+explanation %( Nested scopes ) do
+  rebolito = Rebolito::Interpreter.new
+  rebolito.eval_string %( 
+                      x: 3
+                      y: fun [z][* x z]
+                      q: y 2
+                        )
+                        
+  example %( nested scopes working ) do 
+    rebolito.global.resolve("q").value == 6 
+  end
+end
+
 ## TODO: code comments ??
 ## TODO: Core functions: + - * / % print
 ## TODO: Core conditional (if)
