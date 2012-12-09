@@ -35,8 +35,10 @@ end
 explanation %(
   A chunk of code can be parsed into a stream of basic types.
 ) do
-  source = %(  1 foo -1
- b.c.d "quux" ) ### TODO: Make it work with an embedded newline (not sure why it doesn't work)
+  source = %(  
+              1 foo -1
+              b.c.d "quux" 
+            )
   tokens = Rebolito::Tokenizer.parse(source)
 
   example %( 0 ) do tokens.size == 5 end
@@ -143,6 +145,25 @@ explanation %(
   example %( Function has a parameters block and body block ) do 
     rebolito.global.resolve("foo").parameters.class == Rebolito::Block and 
     rebolito.global.resolve("foo").body.class == Rebolito::Block 
+  end
+end
+
+
+explanation %(
+  Function invocation
+) do
+  rebolito = Rebolito::Interpreter.new
+  rebolito.eval_string %( 
+                         identity: fun [x][x]
+                         foo: identity 4
+                        )
+
+  example %( Value for symbol foo should be a Number ) do 
+    p rebolito.global.resolve("foo")
+    rebolito.global.resolve("foo").class == Rebolito::Number 
+  end
+  example %( Value for symbol foo should be the number 4 ) do 
+    rebolito.global.resolve("foo").value == 4 
   end
 end
 

@@ -51,6 +51,10 @@ module Rebolito
   class Function < Type
     attr_accessor :parameters, :body
     def initialize; end
+
+    def arity
+      @parameters.size
+    end
   end
 
   ## ---------------------------------------------------- THE TOKENIZER
@@ -147,6 +151,33 @@ module Rebolito
       fun.parameters  = ast.evaluate scope
       fun.body        = ast.evaluate scope
       fun
+    end
+
+    def invoke ast, scope
+      result = nil
+      function_scope = Scope.new scope
+      # For each formal parameter, evaluate the next ast token 
+      # and bind to symbol in function scope
+      @parameters.value.each do |p|
+        argument = ast.evaluate function_scope
+        function_scope.add_binding p, argument
+      end
+      # evaluate copy of function body with function scope
+      function_ast = @body.value.clone
+      result = function_ast.evaluate(function_scope) while function_ast.size > 0
+      return result
+    end
+  end
+
+  class Symbol
+    def evaluate ast, scope
+      symbol = scope.resolve(ast.shift.value)
+      
+      if symbol.class == Function
+        symbol.invoke ast, scope
+      else
+        symbol
+      end
     end
   end
 
