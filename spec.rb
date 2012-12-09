@@ -217,14 +217,35 @@ explanation %( IF ) do
   rebolito = Rebolito::Interpreter.new
   rebolito.eval_string %( 
                       x:  if "foo" 2 3
+                      y:  if [] 1 2
                       xx: if "foo" [+ 1 2] [quit]
+                      yy: if [quit foo bar] [111] [quit]
                         )
                         
   example %( simplest if with true condition ) do 
     rebolito.global.resolve("x").value == 2 
   end
+  example %( empty list is false ) do 
+    rebolito.global.resolve("y").value == 2 
+  end
   example %( if with true condition using blocks ) do
     rebolito.global.resolve("xx").value == 3 
+  end
+  example %( if with true block condition  ) do
+    rebolito.global.resolve("yy").value == 111 
+  end
+end
+
+
+explanation %( UNLESS ) do
+  rebolito = Rebolito::Interpreter.new
+  rebolito.eval_string %( 
+                         x: unless "foo" 
+                            2 
+                            3
+                        )                        
+  example %( simplest unless with true condition ) do
+    rebolito.global.resolve("x").value == 3 
   end
 end
 

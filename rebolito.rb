@@ -201,6 +201,11 @@ module Rebolito
     end
   end
 
+  def Rebolito.false? x
+    return x.value.size > 0 if x.class == Block
+    return x.value
+  end
+
   class Interpreter
     attr_accessor :global
 
@@ -247,12 +252,19 @@ module Rebolito
 
       f = Function.new ; def f.invoke(ast, scope)
         args = ast.evaluate_n 3, scope
-        if args[0].value
+        if Rebolito.false? args[0]
           Rebolito.eval_if_block args[1], scope
         else
           Rebolito.eval_if_block args[2], scope
         end
       end ; @global.add_binding 'if', f
+
+      eval_string %(
+        unless: fun [cond then else][
+          if cond else then
+        ]
+
+      )
     end
 
     def eval_string source
