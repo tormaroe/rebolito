@@ -249,6 +249,50 @@ explanation %( UNLESS ) do
   end
 end
 
+
+explanation %( HEAD and TAIL ) do
+  rebolito = Rebolito::Interpreter.new
+  rebolito.eval_string %( 
+                         x: [1 2 3 4]
+                         h: head x
+                         t: tail x
+                        )                        
+  example %( head ) do
+    rebolito.global.resolve("h").value == 1 
+  end                 
+  example %( tail ) do
+    rebolito.global.resolve("t").class == Rebolito::Block and
+    rebolito.global.resolve("t").value == [
+      Rebolito::Number.new("2"), 
+      Rebolito::Number.new("3"), 
+      Rebolito::Number.new("4")]
+  end
+end
+
+
+explanation %( MAP ) do
+  rebolito = Rebolito::Interpreter.new
+  rebolito.eval_string %( 
+                         x: [1 2 3 4]
+                         y: map x fun [z][
+                              * z 2
+                         ]
+                        )                        
+  example %( head ) do
+    rebolito.global.resolve("h").value == 1 
+  end                 
+  example %( tail ) do
+    r = rebolito.global.resolve("y")
+    p r
+    r.class == Rebolito::Block and
+    r.value == [
+      Rebolito::Number.new("2"), 
+      Rebolito::Number.new("4"), 
+      Rebolito::Number.new("6"), 
+      Rebolito::Number.new("8")]
+  end
+end
+
 ## TODO: code comments ??
 ## TODO: Lists (cons cells, or maybe just block?)
 ## TODO: Core iterator (each)

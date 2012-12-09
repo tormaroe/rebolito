@@ -259,9 +259,26 @@ module Rebolito
         end
       end ; @global.add_binding 'if', f
 
+      f = Function.new ; def f.invoke(ast, scope)
+        lst = ast.evaluate scope
+        lst.value.first
+      end ; @global.add_binding 'head', f
+
+      f = Function.new ; def f.invoke(ast, scope)
+        lst = ast.evaluate scope
+        tmp = Block.new
+        lst.value.each {|e| tmp.value << e }
+        tmp.value.shift
+        return tmp
+      end ; @global.add_binding 'tail', f
+
       eval_string %(
         unless: fun [cond then else][
           if cond else then
+        ]
+
+        map: fun [lst f][
+          inner: fun [acc   ##### WORK IN PROGRESS!!
         ]
 
       )
