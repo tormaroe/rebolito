@@ -63,8 +63,8 @@ module Rebolito
         /^\[/ => Proc.new {|s| Block.new },
         /^\]/ => :block_end,
         /^(?:\-){0,1}\d+(?:\.\d+){0,1}/ => Proc.new {|s| Number.new s },
-        /^[A-Za-z0-9\-_\?\<\>\!\@\#\&\/\=\+\*\.\(\)]+\:/ => Proc.new {|s| Assignment.new s },
-        /^[A-Za-z0-9\-_\?\<\>\!\@\#\&\/\=\+\*\.\(\)]+/ => Proc.new {|s| 
+        /^[A-Za-z0-9%\-_\?\<\>\!\@\#\&\/\=\+\*\.\(\)]+\:/ => Proc.new {|s| Assignment.new s },
+        /^[A-Za-z0-9%\-_\?\<\>\!\@\#\&\/\=\+\*\.\(\)]+/ => Proc.new {|s| 
           if s == 'fun'
             Function.new
           else
@@ -221,6 +221,11 @@ module Rebolito
         args = ast.evaluate_n 2, scope
         Number.new (args.shift.value / args.shift.value).to_s
       end ; @global.add_binding '/', f
+
+      f = Function.new ; def f.invoke(ast, scope)
+        args = ast.evaluate_n 2, scope
+        Number.new (args.shift.value % args.shift.value).to_s
+      end ; @global.add_binding '%', f
 
       f = Function.new ; def f.invoke(ast, scope)
         arg = ast.evaluate scope

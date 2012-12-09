@@ -176,6 +176,9 @@ explanation %(
                          p: - - - 10 8 3 -2 [ ... doing several (yes this is a comment) ]
 
                          z: * 3 5                           w: / 12 3
+
+                         xXx: % 15 3
+                         xXy: % 16 3
                         )
   
   example %( Add numbers ) do 
@@ -190,6 +193,10 @@ explanation %(
   end
   example %( Devide ) do 
     rebolito.global.resolve("w").value == 4 
+  end
+  example %( Modulo ) do 
+    rebolito.global.resolve("xXx").value == 0 and 
+    rebolito.global.resolve("xXy").value == 1 
   end
 end
 
