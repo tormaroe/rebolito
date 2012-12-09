@@ -213,9 +213,22 @@ explanation %( Nested scopes ) do
   end
 end
 
+explanation %( IF ) do
+  rebolito = Rebolito::Interpreter.new
+  rebolito.eval_string %( 
+                      x:  if "foo" 2 3
+                      xx: if "foo" [+ 1 2] [quit]
+                        )
+                        
+  example %( simplest if with true condition ) do 
+    rebolito.global.resolve("x").value == 2 
+  end
+  example %( if with true condition using blocks ) do
+    rebolito.global.resolve("xx").value == 3 
+  end
+end
+
 ## TODO: code comments ??
-## TODO: Core functions: + - * / % print
-## TODO: Core conditional (if)
 ## TODO: Lists (cons cells, or maybe just block?)
 ## TODO: Core iterator (each)
 ## TODO: head / tail (alternative to each)

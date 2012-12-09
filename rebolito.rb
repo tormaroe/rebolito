@@ -192,6 +192,15 @@ module Rebolito
 
   ## --------------------------------------------------- INTERPRETER
 
+
+  def Rebolito.eval_if_block x, scope
+    if x.class == Block
+      x.value.evaluate scope
+    else
+      x
+    end
+  end
+
   class Interpreter
     attr_accessor :global
 
@@ -235,6 +244,15 @@ module Rebolito
           puts arg.value
         end
       end ; @global.add_binding 'println', f
+
+      f = Function.new ; def f.invoke(ast, scope)
+        args = ast.evaluate_n 3, scope
+        if args[0].value
+          Rebolito.eval_if_block args[1], scope
+        else
+          Rebolito.eval_if_block args[2], scope
+        end
+      end ; @global.add_binding 'if', f
     end
 
     def eval_string source

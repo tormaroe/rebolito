@@ -20,12 +20,12 @@ def example txt, &block
 end
 
 def explanation txt, &block
-  begin
+#  begin
     block.call
-  rescue Exception => e
-    $errors << e
-    print 'e'
-  end
+#  rescue Exception => e
+#    $errors << e
+#    print 'e'
+#  end
 end
 
 def the_end!
