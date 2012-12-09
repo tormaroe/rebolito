@@ -14,6 +14,8 @@ For now it's just an experiment, a programming exercise, and ambisions are low. 
 * Symbolic
 
 ###Sample code###
+Here are some samples for you to get a feeling of what I'm aiming at.
+
 A simple function, and it's usage:
 
     double: fun [x][+ x x]
@@ -25,6 +27,26 @@ Conditional and booleans:
     a-list: [1, 2, 3]
 
     println if a-list "List not empty" "List empty"
+
+    ; .. or ..
+
+    if a-list [
+      println "List not empty"
+    ] [
+      println "List empty"
+    ]
+
+How to create new control structures - like "unless":
+
+    unless: fun [cond then else][
+              if cond else then
+            ]
+    
+    unless true [
+      println "It's NOT true"
+    ] [
+      println "It's true"
+    ]
 
 Add logging to an existing function:
 
