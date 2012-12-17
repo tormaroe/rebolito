@@ -269,7 +269,35 @@ explanation %( HEAD and TAIL ) do
   end
 end
 
+explanation %( PUSH, POP, SHIFT, and UNSHIFT ) do
+  rebolito = Rebolito::Interpreter.new
+  rebolito.eval_string %( 
+                         x: [2]
+                         push x 3
+                         unshift x 1
+                         unshift x 0
+                         y: shift x
+                         z: []
+                         push z pop x
+                        )   
+                        
+ # p rebolito.global.resolve("x").value
+#p rebolito.global.resolve("y").value
+  example %( fooooo ) do
+    rebolito.global.resolve("x").value == [
+      Rebolito::Number.new("1"),
+      Rebolito::Number.new("2")]
+  end
+   example %( foooo3 ) do
+    rebolito.global.resolve("z").value == [
+      Rebolito::Number.new("3")]
+  end
+  example %( fooooo2 ) do
+    rebolito.global.resolve("y").value == 0
+  end
+end
 
+=begin
 explanation %( MAP ) do
   rebolito = Rebolito::Interpreter.new
   rebolito.eval_string %( 
@@ -292,6 +320,7 @@ explanation %( MAP ) do
       Rebolito::Number.new("8")]
   end
 end
+=end
 
 ## TODO: code comments ??
 ## TODO: Lists (cons cells, or maybe just block?)

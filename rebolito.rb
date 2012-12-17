@@ -182,7 +182,7 @@ module Rebolito
     def evaluate ast, scope
       symbol = scope.resolve(ast.shift.value)
       
-      if symbol.class == Function
+      if symbol.is_a? Function
         symbol.invoke ast, scope
       else
         symbol
@@ -204,6 +204,23 @@ module Rebolito
   def Rebolito.false? x
     return x.value.size > 0 if x.class == Block
     return x.value
+  end
+
+  class DelegateToObjectFunction < Function
+    def initialize message, arity, return_object, scope
+      @message = message
+      @arity = arity
+      @return_object = return_object
+      scope.add_binding message, self
+    end
+    def invoke ast, scope
+      lst = ast.evaluate scope
+      args = []
+      @arity.times { args << ast.evaluate(scope) }
+      tmp = lst.value.send @message, *args
+      return lst if @return_object
+      return tmp
+    end
   end
 
   class Interpreter
@@ -272,16 +289,21 @@ module Rebolito
         return tmp
       end ; @global.add_binding 'tail', f
 
+      DelegateToObjectFunction.new 'push', 1, true, @global
+      DelegateToObjectFunction.new 'unshift', 1, true, @global
+      DelegateToObjectFunction.new 'shift', 0, false, @global
+      DelegateToObjectFunction.new 'pop', 0, false, @global
+
       eval_string %(
         unless: fun [cond then else][
           if cond else then
         ]
-
-        map: fun [lst f][
-          inner: fun [acc   ##### WORK IN PROGRESS!!
-        ]
-
       )
+       # map: fun [lst f][
+       #   inner: fun [acc   ##### WORK IN PROGRESS!!  -- need append / cons
+       # ]
+
+     # )
     end
 
     def eval_string source
