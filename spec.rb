@@ -281,8 +281,6 @@ explanation %( PUSH, POP, SHIFT, and UNSHIFT ) do
                          push z pop x
                         )   
                         
- # p rebolito.global.resolve("x").value
-#p rebolito.global.resolve("y").value
   example %( fooooo ) do
     rebolito.global.resolve("x").value == [
       Rebolito::Number.new("1"),
@@ -297,6 +295,20 @@ explanation %( PUSH, POP, SHIFT, and UNSHIFT ) do
   end
 end
 
+explanation %( Retrieve a function as a value ) do 
+rebolito = Rebolito::Interpreter.new
+  rebolito.eval_string %( 
+                        x: fun [][ "foo" ]
+                        y: :x
+                        z: y
+                        )
+  example %( fooooo2 ) do
+    rebolito.global.resolve("y").class == Rebolito::Function and
+    rebolito.global.resolve("z").value == "foo"
+  end
+  
+end
+
 =begin
 explanation %( MAP ) do
   rebolito = Rebolito::Interpreter.new
@@ -306,10 +318,7 @@ explanation %( MAP ) do
                               * z 2
                          ]
                         )                        
-  example %( head ) do
-    rebolito.global.resolve("h").value == 1 
-  end                 
-  example %( tail ) do
+  example %( adsadssad ) do
     r = rebolito.global.resolve("y")
     p r
     r.class == Rebolito::Block and

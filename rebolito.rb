@@ -39,6 +39,12 @@ module Rebolito
     end
   end
 
+  class RetrieveValue < Type
+    def initialize token
+      super Symbol.new(token[1..-1])
+    end
+  end
+
   class Block < Type
     attr_accessor :closed
     def initialize
@@ -64,6 +70,7 @@ module Rebolito
         /^\]/ => :block_end,
         /^(?:\-){0,1}\d+(?:\.\d+){0,1}/ => Proc.new {|s| Number.new s },
         /^[A-Za-z0-9%\-_\?\<\>\!\@\#\&\/\=\+\*\.\(\)]+\:/ => Proc.new {|s| Assignment.new s },
+        /^\:[A-Za-z0-9%\-_\?\<\>\!\@\#\&\/\=\+\*\.\(\)]+/ => Proc.new {|s| RetrieveValue.new s },
         /^[A-Za-z0-9%\-_\?\<\>\!\@\#\&\/\=\+\*\.\(\)]+/ => Proc.new {|s| 
           if s == 'fun'
             Function.new
@@ -147,6 +154,12 @@ module Rebolito
       assignment_token = ast.shift
       value_to_bind = ast.evaluate scope
       scope.add_binding assignment_token.value, value_to_bind
+    end
+  end
+
+  class RetrieveValue
+    def evaluate ast, scope
+      scope.resolve(ast.shift.value.value)
     end
   end
 
