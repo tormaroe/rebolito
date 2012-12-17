@@ -331,10 +331,7 @@ explanation %( MAP ) do
 end
 =end
 
-## TODO: code comments ??
-## TODO: Lists (cons cells, or maybe just block?)
 ## TODO: Core iterator (each)
-## TODO: head / tail (alternative to each)
 ## TODO: Each on strings should also work (convert to cons cells?)
 ## TODO: Base library: map filter reduce
 

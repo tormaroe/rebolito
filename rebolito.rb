@@ -311,12 +311,18 @@ module Rebolito
         unless: fun [cond then else][
           if cond else then
         ]
-      )
-       # map: fun [lst f][
-       #   inner: fun [acc   ##### WORK IN PROGRESS!!  -- need append / cons
-       # ]
+        "map: fun [lst f][
+          result: []
+          inner: fun [lst2] [
+            if lst2 [ 
+              push result f head lst2
+              inner tail lst2
+            ] done
+          ]
+          inner lst
+        ]"
 
-     # )
+      )
     end
 
     def eval_string source
