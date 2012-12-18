@@ -80,17 +80,16 @@ module Rebolito
         },
         /^\s+/ => :whitespace
       }
+      @@source = source
       @@tokens = []
-      index = 0
-      while index < source.length
-        index = next_token source, index
-      end
+
+      next_token while @@source.length > 0
       return @@tokens
     end
 
-    def self.next_token source, index
+    def self.next_token 
       @@rules.each do |re, factory|
-        match = source[index..-1].scan re
+        match = @@source.scan re
         if match.size > 0
           unless factory == :whitespace
             if factory == :block_end
@@ -101,10 +100,11 @@ module Rebolito
               @@tokens << factory.call(match[0])
             end
           end
-          return index + match[0].length
+          @@source = @@source[match[0].length..-1]
+          return
         end
       end
-      raise "TOKENIZER NO MATCH on " + source[index..-1]
+      raise "TOKENIZER NO MATCH on " + @@source[index..-1]
     end
   end
 
