@@ -28,6 +28,9 @@ module Rebolito
     def initialize token
       super token
     end
+    def to_s
+      @value
+    end
   end
 
   class String < Type
@@ -56,13 +59,16 @@ module Rebolito
       super []
     end
     def to_s
-      "(" + @value.join(", ") + ")"
+      "[" + @value.join(" ") + "]"
     end
   end
 
   class Function < Type
     attr_accessor :parameters, :body
     def initialize; end
+    def to_s
+      "fun #{@parameters} #{@body}"
+    end
   end
 
   ## ---------------------------------------------------- THE TOKENIZER
@@ -102,7 +108,12 @@ module Rebolito
         if match.size > 0
           unless factory == :whitespace
             if factory == :block_end
-              @@tokens << @@block_stack.pop
+              b = @@block_stack.pop
+              if @@block_stack.size > 0
+                @@block_stack.last.value << b
+              else
+                @@tokens << b
+              end
             elsif factory == :block_start
               @@block_stack.push Block.new
             elsif @@block_stack.size > 0
@@ -338,12 +349,9 @@ module Rebolito
 
     def eval_string source
       ast = Tokenizer.parse(source)
-      #if ast.last.class == Block and not ast.last.closed
-      #  raise SourceNotCompleteException.new
-      #end
       result = ast.evaluate(@global) while ast.size > 0
       return "NIL" unless result
-      return result.value
+      return result
     end
   end
 

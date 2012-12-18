@@ -91,19 +91,18 @@ explanation %(
     ))[0].class == Rebolito::Block
   end
   
-  #example %( Nested blocks.. ) do
-  #  tokens = Rebolito::Tokenizer.parse(%(
-  #    [
-  #      1 [
-  #          2
-  #        ]
-  #    ]
-  #  ))
-  #  p tokens
-  #  tokens.size == 1 and 
-  #  tokens[0].class == Rebolito::Block and
-  #  tokens[0].value.size == 2
-  #end
+  example %( Nested blocks.. ) do
+    tokens = Rebolito::Tokenizer.parse(%(
+      [
+        1 [
+            2
+          ]
+      ]
+    ))
+    tokens.size == 1 and 
+    tokens[0].class == Rebolito::Block and
+    tokens[0].value.size == 2
+  end
 end
 
 
