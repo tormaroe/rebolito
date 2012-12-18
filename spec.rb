@@ -112,14 +112,12 @@ explanation %(
   tokens = Rebolito::Tokenizer.parse(%(
     fun [] [
       0
-    }
+    ]
   ))
 
-  # I DON'T UNDERSTAND WHY THIS IS NOT CORRECT ANYMORE, BUT EVERYTHING ELSE IS WORKING :/
-
-  #example %( function has three tokens ) do tokens.size == 3 end
+  example %( function has three tokens ) do tokens.size == 3 end
   example %( first function token is the Function instance itself ) do tokens[0].class == Rebolito::Function end
-  #example %( the other two are blocks ) do tokens[1].class == Rebolito::Block and tokens[2].class == Rebolito::Block end
+  example %( the other two are blocks ) do tokens[1].class == Rebolito::Block and tokens[2].class == Rebolito::Block end
 end
 
 explanation %(

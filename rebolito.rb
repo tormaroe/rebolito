@@ -46,11 +46,17 @@ module Rebolito
     def initialize token
       super Symbol.new(token[0..-2])
     end
+    def to_s
+      "#{@value}:"
+    end
   end
 
   class RetrieveValue < Type
     def initialize token
       super Symbol.new(token[1..-1])
+    end
+    def to_s
+      ":#{@value}"
     end
   end
 
