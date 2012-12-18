@@ -19,6 +19,9 @@ module Rebolito
     def initialize token
       super eval(token)
     end
+    def to_s
+      @value.to_s
+    end
   end
   
   class Symbol < Type
@@ -30,6 +33,9 @@ module Rebolito
   class String < Type
     def initialize token
       super token[1..-2]
+    end
+    def to_s
+      %("#{@value}")
     end
   end
 
@@ -46,13 +52,11 @@ module Rebolito
   end
 
   class Block < Type
-    attr_accessor :closed
     def initialize
-      @closed = false
       super []
     end
     def to_s
-      "(" + @value.join(", ") + ")-" + (unless @closed then "open" else "closed" end)
+      "(" + @value.join(", ") + ")"
     end
   end
 
@@ -66,7 +70,7 @@ module Rebolito
     def self.parse source
       @@rules = {
         /^\"(?:[^\"\\]*(?:\\.[^\"\\]*)*)\"/ => Proc.new {|s| String.new s },
-        /^\[/ => Proc.new {|s| Block.new },
+        /^\[/ => :block_start,
         /^\]/ => :block_end,
         /^(?:\-){0,1}\d+(?:\.\d+){0,1}/ => Proc.new {|s| Number.new s },
         /^[A-Za-z0-9%\-_\?\<\>\!\@\#\&\/\=\+\*\.\(\)]+\:/ => Proc.new {|s| Assignment.new s },
@@ -80,10 +84,15 @@ module Rebolito
         },
         /^\s+/ => :whitespace
       }
+     # puts "SOURCE:"
+     # puts source
       @@source = source
       @@tokens = []
+      @@block_stack = []
 
       next_token while @@source.length > 0
+     # puts "TOKENS"
+     # p @@tokens
       return @@tokens
     end
 
@@ -93,9 +102,11 @@ module Rebolito
         if match.size > 0
           unless factory == :whitespace
             if factory == :block_end
-              @@tokens[-1].closed = true
-            elsif @@tokens[-1].class == Block and not @@tokens[-1].closed
-              @@tokens[-1].value << factory.call(match[0]) ## TODO: PROBLEM HERE WITH NESTED BLOCKS
+              @@tokens << @@block_stack.pop
+            elsif factory == :block_start
+              @@block_stack.push Block.new
+            elsif @@block_stack.size > 0
+              @@block_stack.last.value << factory.call(match[0])
             else
               @@tokens << factory.call(match[0])
             end
@@ -327,9 +338,9 @@ module Rebolito
 
     def eval_string source
       ast = Tokenizer.parse(source)
-      if ast.last.class == Block and not ast.last.closed
-        raise SourceNotCompleteException.new
-      end
+      #if ast.last.class == Block and not ast.last.closed
+      #  raise SourceNotCompleteException.new
+      #end
       result = ast.evaluate(@global) while ast.size > 0
       return "NIL" unless result
       return result.value
