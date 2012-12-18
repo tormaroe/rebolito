@@ -276,6 +276,12 @@ module Rebolito
 
       f = Function.new ; def f.invoke(ast, scope)
         args = ast.evaluate_n 2, scope
+        return RebolitoTRUE if args[0] == args[1]
+        return RebolitoFALSE
+      end ; @global.add_binding '=', f
+
+      f = Function.new ; def f.invoke(ast, scope)
+        args = ast.evaluate_n 2, scope
         Number.new (args.shift.value + args.shift.value).to_s
       end ; @global.add_binding '+', f
 
@@ -363,6 +369,9 @@ module Rebolito
 
   class SourceNotCompleteException < Exception
   end
+
+  RebolitoTRUE = Symbol.new "true"
+  RebolitoFALSE = Block.new
 end
 
 

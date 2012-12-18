@@ -212,13 +212,15 @@ explanation %( Nested scopes ) do
   end
 end
 
-explanation %( IF ) do
+explanation %( IF and EQUAL ) do
   rebolito = Rebolito::Interpreter.new
   rebolito.eval_string %( 
                       x:  if "foo" 2 3
                       y:  if [] 1 2
                       xx: if "foo" [+ 1 2] [quit]
                       yy: if [quit foo bar] [111] [quit]
+                      xxx: if = 1 1 "true" "false"
+                      yyy: if = 1 2 "true" "false"
                         )
                         
   example %( simplest if with true condition ) do 
@@ -232,6 +234,12 @@ explanation %( IF ) do
   end
   example %( if with true block condition  ) do
     rebolito.global.resolve("yy").value == 111 
+  end
+  example %( equal becomes true ) do
+    rebolito.global.resolve("xxx").value == "true" 
+  end
+  example %( equal becomes false ) do
+    rebolito.global.resolve("yyy").value == "false" 
   end
 end
 
@@ -330,7 +338,6 @@ explanation %( MAP ) do
 end
 =end
 
-## TODO: Equal
 ## TODO: Function returning function
 ## TODO: Core iterator (each)
 ## TODO: Each on strings should also work (convert to cons cells?)
