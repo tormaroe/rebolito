@@ -332,6 +332,8 @@ explanation %( MAP ) do
 end
 =end
 
+## TODO: Equal
+## TODO: Function returning function
 ## TODO: Core iterator (each)
 ## TODO: Each on strings should also work (convert to cons cells?)
 ## TODO: Base library: map filter reduce

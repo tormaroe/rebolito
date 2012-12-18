@@ -296,7 +296,7 @@ module Rebolito
       f = Function.new ; def f.invoke(ast, scope)
         arg = ast.evaluate scope
         if arg.class == Block
-          puts arg.value.map{|v| v.value }.join("")
+          puts arg.value.map{|v| v.value }.join("") # TODO: need to evaluate values...
         else
           puts arg.value
         end
