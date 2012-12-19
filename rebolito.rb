@@ -85,6 +85,7 @@ module Rebolito
   module Tokenizer
     def self.parse source
       @@rules = {
+     #   /^\n/ => :whitespace,
         /^\"(?:[^\"\\]*(?:\\.[^\"\\]*)*)\"/ => Proc.new {|s| String.new s },
         /^\[/ => :block_start,
         /^\]/ => :block_end,
@@ -102,7 +103,7 @@ module Rebolito
       }
      # puts "SOURCE:"
      # puts source
-      @@source = source
+      @@source = source #.gsub /\n/, ' '
       @@tokens = []
       @@block_stack = []
 
@@ -136,7 +137,7 @@ module Rebolito
           return
         end
       end
-      raise "TOKENIZER NO MATCH on " + @@source[index..-1]
+      raise "TOKENIZER NO MATCH on '#{ @@source }'\nTOKENS: #{ @@tokens }"
     end
   end
 
@@ -176,6 +177,8 @@ module Rebolito
   class ::Array
     def evaluate scope
       self[0].evaluate self, scope
+    #rescue
+    #  p self
     end
     
     def evaluate_n n, scope
@@ -300,6 +303,7 @@ module Rebolito
       puts '-'*60
       puts " ?vars          Lists all symbols in scope"
       puts " ? <symbol>     Display information about symbol binding"
+      puts " load <path>    Load Rebolito script"
       puts " save <path>    Save environment to file path"
       puts " quit           Exit REPL"
       puts '-'*60
@@ -335,6 +339,21 @@ module Rebolito
     end
   end
 
+  class ReplFunctionLoad < Function
+    def initialize interpreter
+      @interpreter = interpreter
+    end
+    def invoke ast, scope
+      path = ast.evaluate(scope).value
+      raise "'#{path}' is not a valid file path" unless File.exist? path
+
+      source = File.readlines(path).join " "
+      #puts source
+      @interpreter.eval_string source
+      puts "\n#{path} loaded!"
+    end
+  end
+
   class ReplFunctionSave < Function
     def invoke ast, scope
       path = ast.evaluate(scope).value
@@ -346,10 +365,10 @@ module Rebolito
       end
 
       if source.length > 0
-        source = %([
+        source = %("
   Rebolito environment saved on #{Time.new}
   Rebolito version #{$__rebolito_version}
-]\n\n) + source
+"\n\n) + source
         
         File.open(path, 'w') {|f| f.puts source }
         return RebolitoTRUE        
@@ -375,6 +394,7 @@ module Rebolito
 
       @global.add_binding 'help', ReplFunctionHelp.new
       @global.add_binding '?vars', ReplFunctionVars.new
+      @global.add_binding 'load', ReplFunctionLoad.new(self)
       @global.add_binding 'save', ReplFunctionSave.new
       @global.add_binding '?', ReplFunctionSymbolInfo.new
 
@@ -446,6 +466,11 @@ module Rebolito
       DelegateToObjectFunction.new 'pop', 0, false, @global
 
       eval_string %(
+        a: "hi"
+
+        b: "Dette er en test"
+ c: "Dette er en test"
+
         unless: fun [cond then else][
           if cond else then
         ]
@@ -470,6 +495,7 @@ module Rebolito
         ]"
 
       )
+
 
       CoreBindings.add_bindings @global
     end
@@ -527,13 +553,13 @@ if __FILE__ == $PROGRAM_NAME
         input = nil
       rescue Rebolito::SourceNotCompleteException # TODO: Make this work again
         # nothing  
-#=begin
+=begin
       rescue Exception => e
         #raise
         raise if e.class == SystemExit
         input = nil
         puts "** #{ e }"
-#=end
+=end
       end
     end
   end

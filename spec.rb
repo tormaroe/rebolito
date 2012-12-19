@@ -24,7 +24,7 @@ explanation %(
   end
 
   example %( this is how you would specify a string ) do
-    Rebolito::Tokenizer.parse("\"foo bar\"")[0] == Rebolito::String.new("\"foo bar\"")
+    Rebolito::Tokenizer.parse("\"foo bar quux\"")[0] == Rebolito::String.new("\"foo bar quux\"")
   end
   example %( this is how you would specify a string with escaped quotes ) do
     Rebolito::Tokenizer.parse('"foo \\"bar\\""')[0] == Rebolito::String.new("\"foo \\\"bar\\\"\"")
@@ -215,12 +215,12 @@ end
 explanation %( IF and EQUAL ) do
   rebolito = Rebolito::Interpreter.new
   rebolito.eval_string %( 
-                      x:  if "foo" 2 3
-                      y:  if [] 1 2
-                      xx: if "foo" [+ 1 2] [quit]
-                      yy: if [quit foo bar] [111] [quit]
-                      xxx: if = 1 1 "true" "false"
-                      yyy: if = 1 2 "true" "false"
+                          x:  if "foo" 2 3
+                          y:  if [] 1 2
+                          xx: if "foo" [+ 1 2] [quit]
+                          yy: if [quit foo bar] [111] [quit]
+                          xxx: if = 1 1 "true" "false"
+                          yyy: if = 1 2 "true" "false"
                         )
                         
   example %( simplest if with true condition ) do 
