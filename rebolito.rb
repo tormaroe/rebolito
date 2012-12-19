@@ -352,11 +352,11 @@ module Rebolito
 ]\n\n) + source
         
         File.open(path, 'w') {|f| f.puts source }
+        return RebolitoTRUE        
       else
         puts " << NOTHING TO SAVE HERE >> "
+        return RebolitoFALSE
       end
-
-      return nil
     end
   end
 
