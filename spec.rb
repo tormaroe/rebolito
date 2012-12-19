@@ -244,6 +244,21 @@ explanation %( IF and EQUAL ) do
 end
 
 
+explanation %( Boolean operators: AND, OR, NOT ) do
+  rebolito = Rebolito::Interpreter.new
+  rebolito.eval_string %( 
+                       x: if and 1 1 "true" "false"
+                       y: and 1 2
+                        )
+  example %( and 1 1 ) do 
+    rebolito.global.resolve("x").value == "true"
+  end
+  example %( and should evaluate to last value if both is true ) do 
+    rebolito.global.resolve("y").value == 2
+  end
+end
+
+
 explanation %( UNLESS ) do
   rebolito = Rebolito::Interpreter.new
   rebolito.eval_string %( 
@@ -338,9 +353,14 @@ explanation %( MAP ) do
 end
 =end
 
+## TODO: And & Or
 ## TODO: Function returning function
 ## TODO: Core iterator (each)
 ## TODO: Each on strings should also work (convert to cons cells?)
 ## TODO: Base library: map filter reduce
+## TODO: Dump environment command
+## TODO: inspect environment command
+## TODO: load and eval functions
+## TODO: funcall functions ?
 
 the_end!

@@ -191,6 +191,16 @@ module Rebolito
     end
   end
 
+  class Block
+    def clone
+      c = Block.new
+      @value.each do |v|
+        c.value << v.clone
+      end
+      return c
+    end
+  end
+
   class Function
     def evaluate ast, scope
       unless ast.size >= 3 and ast[1].class == Block and ast[2].class == Block
@@ -213,8 +223,8 @@ module Rebolito
         function_scope.add_binding p, argument
       end
       # evaluate copy of function body with function scope
-      function_ast = @body.value.clone
-      result = function_ast.evaluate(function_scope) while function_ast.size > 0
+      function_ast = @body.clone
+      result = function_ast.value.evaluate(function_scope) while function_ast.value.size > 0
       return result
     end
   end
@@ -344,6 +354,12 @@ module Rebolito
       eval_string %(
         unless: fun [cond then else][
           if cond else then
+        ]
+        and: fun [a b][
+          if a [
+            temp: b
+            if temp temp []
+          ] []
         ]
         "map: fun [lst f][
           result: []
