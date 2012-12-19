@@ -247,14 +247,29 @@ end
 explanation %( Boolean operators: AND, OR, NOT ) do
   rebolito = Rebolito::Interpreter.new
   rebolito.eval_string %( 
+                       t: true
+                       f: false
                        x: if and 1 1 "true" "false"
                        y: and 1 2
+                       x2: if and 1 false "true" "falseX"
+                       y2: and false 2
+                       y3: and 2 false
                         )
+                        # TODO: and true [println "foo"] -- returns the block unevaluated :(
   example %( and 1 1 ) do 
     rebolito.global.resolve("x").value == "true"
   end
   example %( and should evaluate to last value if both is true ) do 
     rebolito.global.resolve("y").value == 2
+  end
+  example %( and 1 false ) do 
+    rebolito.global.resolve("x2").value == "falseX"
+  end
+  example %( and should evaluate to [] if one value is false ) do 
+    rebolito.global.resolve("y2").class == Rebolito::Block and rebolito.global.resolve("y2").value.size == 0
+  end
+  example %( and should evaluate to [] if one value is false (2) ) do 
+    rebolito.global.resolve("y3").class == Rebolito::Block and rebolito.global.resolve("y2").value.size == 0
   end
 end
 

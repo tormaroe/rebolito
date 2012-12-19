@@ -284,6 +284,10 @@ module Rebolito
         abort "bye bye!"
       end ; @global.add_binding 'quit', f
 
+      @global.add_binding "true", RebolitoTRUE
+      @global.add_binding "false", RebolitoFALSE
+
+
       f = Function.new ; def f.invoke(ast, scope)
         args = ast.evaluate_n 2, scope
         return RebolitoTRUE if args[0] == args[1]
@@ -358,8 +362,8 @@ module Rebolito
         and: fun [a b][
           if a [
             temp: b
-            if temp temp []
-          ] []
+            if temp temp false
+          ] [[]]
         ]
         "map: fun [lst f][
           result: []
