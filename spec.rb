@@ -384,12 +384,22 @@ explanation %( MAP ) do
 end
 =end
 
+## TODO: Metaprogramming: body, set-body, parameters, set-parameters
+## TODO: ?vars only display user defined, and add ?core
+## TODO: Add useful functions from Clojure.Core
+## TODO: Add hashmap
+## TODO: cond, < > <= >= even? odd? count/size/length block? string? number? partial compose, join (strings and blocks) split
 ## TODO: And & Or -- if evaluerer ikke blockene sine riktig - her har jeg en jobb å gjøre!!!!!!!!!!!!!!! <== PRI 1
 ## TODO: Function returning function                                                                     <== PRI 3
 ## TODO: Core iterator (each)                                                                            <== PRI 1
+#          Also a FOR and/or LOOP and/or WHILE
 ## TODO: Each on strings should also work (convert to cons cells?)
 ## TODO: Base library: map filter reduce                                                                 <== PRI 2
 ## TODO: eval function
 ## TODO: funcall functions ?
+## random
+## file utils (spit slurp)
+## curl commands
+## regexps
 
 the_end!

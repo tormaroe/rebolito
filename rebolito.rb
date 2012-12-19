@@ -483,6 +483,9 @@ module Rebolito
         not: fun [x][
           if x [false] [true]
         ]
+        inc: fun [x][+ x 1]
+        dec: fun [x][- x 1]
+        zero?: fun [x][if = 0 x true [[]]]
         "map: fun [lst f][
           result: []
           inner: fun [lst2] [
