@@ -249,6 +249,9 @@ explanation %( Boolean operators: AND, OR, NOT ) do
   rebolito.eval_string %( 
                        t: true
                        f: false
+                       n: not t
+                       n2: not f
+
                        x: if and 1 1 "true" "false"
                        y: and 1 2
                        x2: if and 1 false "true" "falseX"
@@ -258,6 +261,12 @@ explanation %( Boolean operators: AND, OR, NOT ) do
                         # TODO: and true [println "foo"] -- returns the block unevaluated :(
   example %( and 1 1 ) do 
     rebolito.global.resolve("x").value == "true"
+  end
+  example %( not true ) do
+    rebolito.global.resolve("n").class == Rebolito::Block and rebolito.global.resolve("n").value.size == 0
+  end
+  example %( not false ) do 
+    rebolito.global.resolve("n2").value == "true"
   end
   example %( and should evaluate to last value if both is true ) do 
     rebolito.global.resolve("y").value == 2

@@ -199,6 +199,10 @@ module Rebolito
       end
       return c
     end
+#    def evaluate ast, scope
+#      result = ast.evaluate(scope) while ast.size > 0
+#      return result
+#    end
   end
 
   class Function
@@ -364,6 +368,9 @@ module Rebolito
             temp: b
             if temp temp false
           ] [[]]
+        ]
+        not: fun [x][
+          if x [false] [true]
         ]
         "map: fun [lst f][
           result: []
