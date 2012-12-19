@@ -148,7 +148,7 @@ module Rebolito
       scope.symbols.keys.each {|k| @@bindings << k }
     end
     def self.is_core? symbol
-      @@bindings.include? symbol.value
+      @@bindings.include? (if symbol.class == ::String then symbol else symbol.value end)
     end
   end
 
@@ -300,6 +300,7 @@ module Rebolito
       puts '-'*60
       puts " ?vars          Lists all symbols in scope"
       puts " ? <symbol>     Display information about symbol binding"
+      puts " save <path>    Save environment to file path"
       puts " quit           Exit REPL"
       puts '-'*60
     end
@@ -334,6 +335,31 @@ module Rebolito
     end
   end
 
+  class ReplFunctionSave < Function
+    def invoke ast, scope
+      path = ast.evaluate(scope).value
+      source = ""
+      scope.symbols.each do |key, binding|
+        unless CoreBindings.is_core? key
+          source += "#{key}: #{binding}\n\n"
+        end
+      end
+
+      if source.length > 0
+        source = %([
+  Rebolito environment saved on #{Time.new}
+  Rebolito version #{$__rebolito_version}
+]\n\n) + source
+        
+        File.open(path, 'w') {|f| f.puts source }
+      else
+        puts " << NOTHING TO SAVE HERE >> "
+      end
+
+      return nil
+    end
+  end
+
   class Interpreter
     attr_accessor :global
 
@@ -349,6 +375,7 @@ module Rebolito
 
       @global.add_binding 'help', ReplFunctionHelp.new
       @global.add_binding '?vars', ReplFunctionVars.new
+      @global.add_binding 'save', ReplFunctionSave.new
       @global.add_binding '?', ReplFunctionSymbolInfo.new
 
       f = Function.new ; def f.invoke(ast, scope)
@@ -498,13 +525,15 @@ if __FILE__ == $PROGRAM_NAME
       begin
         puts "==> #{ rebolito.eval_string(input) }"
         input = nil
-      rescue Rebolito::SourceNotCompleteException
+      rescue Rebolito::SourceNotCompleteException # TODO: Make this work again
         # nothing  
+#=begin
       rescue Exception => e
         #raise
         raise if e.class == SystemExit
         input = nil
         puts "** #{ e }"
+#=end
       end
     end
   end
