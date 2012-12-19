@@ -553,13 +553,13 @@ if __FILE__ == $PROGRAM_NAME
         input = nil
       rescue Rebolito::SourceNotCompleteException # TODO: Make this work again
         # nothing  
-=begin
+#=begin
       rescue Exception => e
         #raise
         raise if e.class == SystemExit
         input = nil
         puts "** #{ e }"
-=end
+#=end
       end
     end
   end

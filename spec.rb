@@ -347,10 +347,17 @@ rebolito = Rebolito::Interpreter.new
                         x: fun [][ "foo" ]
                         y: :x
                         z: y
+                        x2: fun [][ :x ]
+                        y2: x2
+                        z2: y2
                         )
   example %( fooooo2 ) do
     rebolito.global.resolve("y").class == Rebolito::Function and
     rebolito.global.resolve("z").value == "foo"
+  end
+  example %( fooooo3 ) do
+    rebolito.global.resolve("y2").class == Rebolito::Function and
+    rebolito.global.resolve("z2").value == "foo"
   end
   
 end
@@ -377,14 +384,12 @@ explanation %( MAP ) do
 end
 =end
 
-## TODO: And & Or -- if evaluerer ikke blockene sine riktig - her har jeg en jobb å gjøre!
-## TODO: Function returning function
-## TODO: Core iterator (each)
+## TODO: And & Or -- if evaluerer ikke blockene sine riktig - her har jeg en jobb å gjøre!!!!!!!!!!!!!!! <== PRI 1
+## TODO: Function returning function                                                                     <== PRI 3
+## TODO: Core iterator (each)                                                                            <== PRI 1
 ## TODO: Each on strings should also work (convert to cons cells?)
-## TODO: Base library: map filter reduce
-## TODO: Dump environment command
-## TODO: inspect environment command
-## TODO: load and eval functions
+## TODO: Base library: map filter reduce                                                                 <== PRI 2
+## TODO: eval function
 ## TODO: funcall functions ?
 
 the_end!
