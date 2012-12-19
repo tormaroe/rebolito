@@ -73,7 +73,11 @@ module Rebolito
     attr_accessor :parameters, :body
     def initialize; end
     def to_s
-      "fun #{@parameters} #{@body}"
+      if @parameters and @body
+        "fun #{@parameters} #{@body}"
+      else
+        "[built-in function]"
+      end
     end
   end
 
@@ -137,7 +141,19 @@ module Rebolito
   end
 
   ## --------------------------------------------------- ENVIRONMENT
+  
+  module CoreBindings
+    def self.add_bindings scope
+      @@bindings ||= []
+      scope.symbols.keys.each {|k| @@bindings << k }
+    end
+    def self.is_core? symbol
+      @@bindings.include? symbol.value
+    end
+  end
+
   class Scope
+    attr_reader :symbols
     def initialize parent_scope
       @symbols = {}
       @parent = parent_scope
@@ -278,6 +294,46 @@ module Rebolito
     end
   end
 
+  class ReplFunctionHelp < Function
+    def invoke ast, scope
+      puts " REPL COMMANDS"
+      puts '-'*60
+      puts " ?vars          Lists all symbols in scope"
+      puts " ? <symbol>     Display information about symbol binding"
+      puts " quit           Exit REPL"
+      puts '-'*60
+    end
+  end
+
+  class ReplFunctionSymbolInfo < Function
+    def invoke ast, scope
+      sym = ast.shift
+      binding = scope.resolve(sym.value)
+      puts
+      puts " SYMBOL : #{sym}"
+      puts " TYPE   : #{binding.class}"
+      puts " CORE   : #{CoreBindings.is_core?(sym)}"
+      puts " VALUE  : #{binding}"
+      puts
+    end
+  end
+
+  class ReplFunctionVars < Function
+    def invoke ast, scope
+      puts "SYMBOLS IN CURRENT SCOPE:"
+      puts
+      scope.symbols.keys.sort.each_slice(3) do |keys|
+        print_row keys
+      end
+      puts
+      return nil
+    end
+    def print_row r
+      r.each {|x| print " #{x}".ljust(25) }
+      puts
+    end
+  end
+
   class Interpreter
     attr_accessor :global
 
@@ -291,6 +347,9 @@ module Rebolito
       @global.add_binding "true", RebolitoTRUE
       @global.add_binding "false", RebolitoFALSE
 
+      @global.add_binding 'help', ReplFunctionHelp.new
+      @global.add_binding '?vars', ReplFunctionVars.new
+      @global.add_binding '?', ReplFunctionSymbolInfo.new
 
       f = Function.new ; def f.invoke(ast, scope)
         args = ast.evaluate_n 2, scope
@@ -384,6 +443,8 @@ module Rebolito
         ]"
 
       )
+
+      CoreBindings.add_bindings @global
     end
 
     def eval_string source

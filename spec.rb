@@ -377,7 +377,7 @@ explanation %( MAP ) do
 end
 =end
 
-## TODO: And & Or
+## TODO: And & Or -- if evaluerer ikke blockene sine riktig - her har jeg en jobb å gjøre!
 ## TODO: Function returning function
 ## TODO: Core iterator (each)
 ## TODO: Each on strings should also work (convert to cons cells?)
